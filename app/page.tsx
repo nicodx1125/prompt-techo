@@ -208,6 +208,7 @@ export default function Home() {
                 {filteredPrompts.length > 0 ? (
                   filteredPrompts.map((prompt) => {
                     const isOwner = user && prompt.user_id === user.id;
+                    const isAdmin = user?.email === 'nico13th@gmail.com';
                     return (
                       <PromptCard
                         key={prompt.id}
@@ -215,7 +216,7 @@ export default function Home() {
                         onTagClick={handleTagClick}
                         onExpand={handleExpand}
                         onEdit={isOwner ? handleEdit : undefined}
-                        onDelete={isOwner ? handleDeleteClick : undefined}
+                        onDelete={isOwner || isAdmin ? handleDeleteClick : undefined}
                       />
                     );
                   })
@@ -289,29 +290,29 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {user && selectedPrompt.user_id === user.id && (
-                  <>
-                    <button
-                      onClick={() => {
-                        setEditingPrompt(selectedPrompt);
-                        setIsModalOpen(true);
-                        setIsDetailOpen(false);
-                      }}
-                      className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
-                      title="編集"
-                    >
-                      <Edit size={18} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPromptToDelete(selectedPrompt.id);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                      title="削除"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </>
+                  <button
+                    onClick={() => {
+                      setEditingPrompt(selectedPrompt);
+                      setIsModalOpen(true);
+                      setIsDetailOpen(false);
+                    }}
+                    className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+                    title="編集"
+                  >
+                    <Edit size={18} />
+                  </button>
+                )}
+                {user && (selectedPrompt.user_id === user.id || user.email === 'nico13th@gmail.com') && (
+                  <button
+                    onClick={() => {
+                      setPromptToDelete(selectedPrompt.id);
+                      setIsDeleteModalOpen(true);
+                    }}
+                    className="text-slate-400 hover:text-rose-500 transition-colors p-1"
+                    title="削除"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 )}
               </div>
             </div>
