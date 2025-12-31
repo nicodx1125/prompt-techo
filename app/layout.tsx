@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from "@vercel/analytics/react"
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -46,6 +47,7 @@ export default function RootLayout({
         <main className="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
+        <Analytics />
       </body>
     </html>
   );
