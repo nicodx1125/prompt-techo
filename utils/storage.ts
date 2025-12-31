@@ -28,7 +28,8 @@ export const savePrompt = async (prompt: Omit<Prompt, 'id' | 'createdAt' | 'crea
             content: prompt.content,
             tags: prompt.tags,
             source_url: prompt.sourceUrl,
-            source_title: prompt.sourceTitle
+            source_title: prompt.sourceTitle,
+            user_id: prompt.user_id
         }])
         .select()
         .single();

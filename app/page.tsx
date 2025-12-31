@@ -9,12 +9,18 @@ import Modal from '@/components/Modal';
 import MarkdownView from '@/components/MarkdownView';
 import TagSidebar from '@/components/TagSidebar';
 import VariableInjector from '@/components/VariableInjector';
+import AuthModal from '@/components/AuthModal';
+import { useAuth } from '@/hooks/useAuth';
 import { Prompt } from '@/types';
 import { getPrompts, deletePrompt } from '@/utils/storage';
 import { Copy, Check, X, Loader2, AlertCircle, ExternalLink, Tag, Edit, Trash2 } from 'lucide-react';
 
 export default function Home() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+
+  // Auth state
+  const { user, loading: authLoading, signOut } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Tag Counts
   const tagCounts = prompts.reduce((acc, prompt) => {
@@ -70,8 +76,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchPrompts();
-  }, []);
+    if (!authLoading) {
+      fetchPrompts();
+    }
+  }, [authLoading, user]);
 
   const handleCreateSuccess = () => {
     fetchPrompts();
@@ -80,6 +88,10 @@ export default function Home() {
   };
 
   const handleCreateClick = () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     setEditingPrompt(null);
     setIsModalOpen(true);
   };
@@ -155,7 +167,13 @@ export default function Home() {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-40">
-        <Header onCreateClick={handleCreateClick} />
+        <Header
+          onCreateClick={handleCreateClick}
+          user={user}
+          loading={authLoading}
+          onLoginClick={() => setIsAuthModalOpen(true)}
+          onLogoutClick={signOut}
+        />
       </div>
 
       <div className="pt-20 max-w-7xl mx-auto pb-10">
@@ -188,9 +206,19 @@ export default function Home() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPrompts.length > 0 ? (
-                  filteredPrompts.map((prompt) => (
-                    <PromptCard key={prompt.id} prompt={prompt} onTagClick={handleTagClick} onExpand={handleExpand} onEdit={handleEdit} onDelete={handleDeleteClick} />
-                  ))
+                  filteredPrompts.map((prompt) => {
+                    const isOwner = user && prompt.user_id === user.id;
+                    return (
+                      <PromptCard
+                        key={prompt.id}
+                        prompt={prompt}
+                        onTagClick={handleTagClick}
+                        onExpand={handleExpand}
+                        onEdit={isOwner ? handleEdit : undefined}
+                        onDelete={isOwner ? handleDeleteClick : undefined}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="col-span-full text-center py-20 text-slate-500 bg-slate-50 rounded-lg border border-slate-200 border-dashed">
                     <p className="text-xl">プロンプトが見つかりませんでした。</p>
@@ -260,27 +288,31 @@ export default function Home() {
                 )}
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => {
-                    setEditingPrompt(selectedPrompt);
-                    setIsModalOpen(true);
-                    setIsDetailOpen(false);
-                  }}
-                  className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
-                  title="編集"
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  onClick={() => {
-                    setPromptToDelete(selectedPrompt.id);
-                    setIsDeleteModalOpen(true);
-                  }}
-                  className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                  title="削除"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {user && selectedPrompt.user_id === user.id && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditingPrompt(selectedPrompt);
+                        setIsModalOpen(true);
+                        setIsDetailOpen(false);
+                      }}
+                      className="text-slate-400 hover:text-indigo-600 transition-colors p-1"
+                      title="編集"
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPromptToDelete(selectedPrompt.id);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="text-slate-400 hover:text-rose-500 transition-colors p-1"
+                      title="削除"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg border border-slate-200 overflow-y-auto max-h-[60vh] custom-scrollbar relative shadow-inner">
@@ -321,6 +353,11 @@ export default function Home() {
           </div>
         )}
       </Modal>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </>
   );
 }

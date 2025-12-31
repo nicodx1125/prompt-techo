@@ -66,7 +66,7 @@ export default function PromptCard({ prompt, onTagClick, onExpand, onEdit, onDel
                         {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
                     </button>
 
-                    {(onEdit || onDelete || prompt.sourceUrl) && (
+                    {(onEdit || onDelete) && (
                         <div className="relative" ref={menuRef}>
                             <button
                                 onClick={() => setShowMenu(!showMenu)}

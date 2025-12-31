@@ -4,6 +4,7 @@ import { useState, FormEvent, useEffect, useRef } from 'react';
 import { savePrompt, getAllTags, updatePrompt } from '@/utils/storage';
 import { Plus, X, Tag, Loader2, Link } from 'lucide-react';
 import { Prompt } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PromptFormProps {
     onSuccess?: () => void;
@@ -19,6 +20,7 @@ export default function PromptForm({ onSuccess, initialData }: PromptFormProps) 
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [isFetchingMeta, setIsFetchingMeta] = useState(false);
+    const { user } = useAuth();
 
     // Autocomplete State
     const [existingTags, setExistingTags] = useState<string[]>([]);
@@ -136,7 +138,10 @@ export default function PromptForm({ onSuccess, initialData }: PromptFormProps) 
                     ...promptData
                 });
             } else {
-                await savePrompt(promptData);
+                await savePrompt({
+                    ...promptData,
+                    user_id: user?.id
+                });
             }
 
             if (!initialData) {

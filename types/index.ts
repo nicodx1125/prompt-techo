@@ -7,4 +7,5 @@ export interface Prompt {
     sourceUrl?: string;
     sourceTitle?: string;
     created_at: string;
+    user_id?: string;
 }
