@@ -5,8 +5,34 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://prompt-techo.vercel.app'),
   title: 'プロンプト手帳',
   description: 'デジタルなシステム手帳 - 便利で快適なプロンプト管理ツール',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png',
+  },
+  openGraph: {
+    title: 'プロンプト手帳',
+    description: 'デジタルなシステム手帳 - 便利で快適なプロンプト管理ツール',
+    url: 'https://prompt-techo.vercel.app',
+    siteName: 'プロンプト手帳',
+    locale: 'ja_JP',
+    type: 'website',
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'プロンプト手帳',
+    description: 'デジタルなシステム手帳',
+    images: ['/opengraph-image.png'],
+  },
 };
 
 export default function RootLayout({
